@@ -1,0 +1,170 @@
+#include "config.h"
+#include "lcd.h"
+#include "keyboard.h"
+#include "servo.h"
+#include "leds.h"
+
+// Variables globales
+char password[5] = "7890";
+char input[5];
+unsigned char input_pos = 0;
+unsigned char failed_attempts = 0;
+unsigned char system_open = 0;  // 0 = cerrado, 1 = abierto
+
+void CheckPassword(char key);
+void ShowPasswordStatus(int status);
+
+void main(void) {
+    OSCCON = 0b01110000;
+    
+    // Configurar puertos
+    TRISD = 0x00;  // Puerto D como salida (LCD, LEDs)
+    TRISB = 0xF0;  // RB0-RB3 salidas (columnas), RB4-RB7 entradas (filas)
+    TRISC0 = 0;    // RC0 como salida para buzzer
+    
+    // Desactivar entradas analógicas
+    ANSELB = 0x00;
+    ANSELD = 0x00;
+    ANSELC = 0x00;
+    
+    // Inicializar puertos
+    LATB = 0x0F;   // Inicializar columnas a 1 (todas desactivadas)
+    LATD = 0x00;
+    LATC0 = 0;     // Buzzer apagado
+    
+    // Configurar pull-ups
+    INTCON2bits.RBPU = 0;
+    WPUB = 0xF0;   // Activar resistencias pull-up para RB4-RB7
+    
+    // Inicializar periféricos
+    LCD_Init();
+    Keyboard_Init();
+    LEDs_Init();
+    Servo_Init();  // Inicializar servo
+    
+    // Mensaje inicial
+    LCD_WriteString("Ingrese clave:");
+    LCD_SetCursor(2, 1);
+    LCD_WriteString("");
+    
+    while(1) {
+        char key = Keyboard_GetKey();
+        if(key != 0) {
+            if(key == 'D' && system_open) {
+                // Cerrar el sistema con el botón 'D'
+                LCD_Clear();
+                LCD_WriteString("Cerrando...");
+                Servo_MoveSmoothly(DUTY_CLOSE);
+                system_open = 0;
+                LEDs_Set(0, 0);
+                __delay_ms(1000);
+                LCD_Clear();
+                LCD_WriteString("Ingrese clave:");
+                LCD_SetCursor(2, 1);
+                LCD_WriteString("");
+            }
+            else if(!system_open) {
+                CheckPassword(key);
+            }
+        }
+        __delay_ms(50);
+    }
+}
+
+void CheckPassword(char key) {
+    if(system_open) return;  // No aceptar entradas si el sistema está abierto
+    
+    if((key >= '0' && key <= '9') || key == '*' || key == '#') {
+        if(key == '*') {
+            // Borrar último carácter
+            if(input_pos > 0) {
+                input_pos--;
+                input[input_pos] = 0;
+                LCD_SetCursor(2, 1 + input_pos);
+                LCD_WriteChar('_');
+            }
+        }
+        else if(key == '#') {
+            // Verificar clave completa
+            if(input_pos == 4) {
+                int correct = 1;
+                for(int i = 0; i < 4; i++) {
+                    if(input[i] != password[i]) {
+                        correct = 0;
+                        break;
+                    }
+                }
+                ShowPasswordStatus(correct);
+            }
+        }
+        else if(input_pos < 4) {
+            // Agregar dígito
+            input[input_pos] = key;
+            LCD_SetCursor(2, 1 + input_pos);
+            LCD_WriteChar('*');
+            input_pos++;
+            
+            // Si se completó la clave, verificar automáticamente
+            if(input_pos == 4) {
+                __delay_ms(500);
+                int correct = 1;
+                for(int i = 0; i < 4; i++) {
+                    if(input[i] != password[i]) {
+                        correct = 0;
+                        break;
+                    }
+                }
+                ShowPasswordStatus(correct);
+            }
+        }
+    }
+}
+
+void ShowPasswordStatus(int status) {
+    LCD_Clear();
+    
+    if(status) {
+        LEDs_Set(1, 0);
+        LCD_WriteString("Clave correcta!");
+        LCD_SetCursor(2, 1);
+        LCD_WriteString("Abriendo...");
+        
+        // ABRIR SERVO CUANDO LA CLAVE ES CORRECTA
+        Servo_MoveSmoothly(DUTY_OPEN);
+        
+        failed_attempts = 0;
+        system_open = 1;  // Marcar el sistema como abierto
+        
+        // No cerrar automáticamente, esperar botón 'D'
+        LCD_SetCursor(2, 1);
+        LCD_WriteString("Presione D para");
+        LCD_SetCursor(3, 1);
+        LCD_WriteString("cerrar         ");
+        
+    } else {
+        LEDs_Set(0, 1);
+        LCD_WriteString("Clave incorrecta");
+        failed_attempts++;
+
+        // Activar buzzer después de 3 intentos fallidos
+        if(failed_attempts >= 3) {
+            BUZZER = 1;
+            __delay_ms(2000);
+            BUZZER = 0;
+            failed_attempts = 0;
+        }
+    }
+
+    // Limpiar entrada
+    for(int i = 0; i < 5; i++) input[i] = 0;
+    input_pos = 0;
+
+    if(!status) {
+        __delay_ms(2000);
+        LEDs_Set(0, 0);
+        LCD_Clear();
+        LCD_WriteString("Ingrese clave:");
+        LCD_SetCursor(2, 1);
+        LCD_WriteString("");
+    }
+}

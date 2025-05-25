@@ -3,9 +3,16 @@
 
 ## Integrantes
 
+[Jeisson Estiven Diaz Tequia - 131260](https://github.com/JeissonDi)
+
+[Nicolas Joël Mila Moriones - 131356](https://github.com/Mikironi)
+
+[Jhonatan Julian Galindo Ortiz - 128624](https://github.com/Jhonatan127galindo)
+
 
 ## Nombre del proyecto: 
 
+**Caja Fuerte con alarma y indicadores del luz**
 
 ## Documentación
 
