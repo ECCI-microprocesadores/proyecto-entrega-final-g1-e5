@@ -1422,6 +1422,11 @@ void LEDs_Set(int correct, int incorrect) {
 
 ![alt text](image.png)
 --
+
+### montaje 
+
+![alt text](<Imagen de WhatsApp 2025-05-26 a las 10.10.05_148f35ce.jpg>)
+
 ## Conclusiones
 
 **Conclusión del Proyecto de Sistema de Seguridad con Microcontrolador**
