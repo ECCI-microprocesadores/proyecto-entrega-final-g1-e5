@@ -1481,6 +1481,11 @@ Este sistema puede adaptarse fácilmente a diversos escenarios:
 - Prototipos de automatización residencial
 - Control de dispositivos en proyectos IoT
 
+**conclucion con el periferico i2c y uart**
+
+- Al intentar integrar el i2c en el proyecto para tener menos conecxiones con el **pic18f45k22**, el funcioness como el teclado, el buzzer, los leds y el servomotor estos perifericos funcionaban, pero no se veian reflejados en el lcd no se veian los mensajes solo estaba encendia.
+- Con la uart no la podimos integrar ya que al realizar el respectivo laboratoria funcionaba solo el codigo que nos envio la profesora, pero al integrar el adc en el programa de putty no se veia reflejado nada se vei el cursor no mas y ni se movia y al intentar con el codigo de la profesora ya no se veia reflajado nada.
+
 **Conclusión Final**
 
 El proyecto cumple satisfactoriamente con su objetivo principal de crear un sistema de seguridad funcional basado en microcontrolador, demostrando:
@@ -1490,7 +1495,13 @@ El proyecto cumple satisfactoriamente con su objetivo principal de crear un sist
 ✅ Interfaz de usuario intuitiva  
 ✅ Buenas prácticas de programación embebida  
 
+## Presentacion
+
+[Link de la presentacion](https://www.canva.com/design/DAGojQjp-y0/UdOUlC4IgOHICxroscmfPw/edit?utm_content=DAGojQjp-y0&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
 
+## video del funcionamineto 
+
+[Link del video](https://youtube.com/shorts/bkJA3_rGP7c?si=VNDcBpYOPsJB7cNU)
 
 <!-- Crear una carpeta src e incluir en ella los códigos y/o el proyecto de mplab-->
